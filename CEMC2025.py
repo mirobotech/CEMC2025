@@ -16,6 +16,10 @@ TMP1 = ADC(2, atten = ADC.ATTN_11DB)
 TRIG = Pin(6, Pin.OUT)
 ECHO = Pin(8, Pin.IN)
 
+# Map function. Map value in input range to output range.
+def map(value, in_min, in_max, out_min, out_max):
+  return int((value - in_min) * (out_max - out_min) / (in_max - in_min) + out_min)
+
 # Create PWM objects for servos
 # At freq=50, duty_u16 values from 3276-6554 correspond to 1-2ms pulses for
 # regular 90 degree hobby servos, and values from 1638-8192 correspond to
@@ -32,13 +36,6 @@ def servo1_position(deg):
 
 # Declare servo position variables and set starting position
 servo1_angle = 45  # Servo position for 0-90 degree servos
-
-# Set servos to starting positions
-servo1_position(servo1_angle)
-
-# Map function. Map value in input range to output range.
-def map(value, in_min, in_max, out_min, out_max):
-  return int((value - in_min) * (out_max - out_min) / (in_max - in_min) + out_min)
 
 # Return SONAR range to closest target in cm. Limit search range to max distance, in cm.
 # Example use: object_distance = sonar_range(100)
@@ -76,6 +73,9 @@ def sonar_range(max):
   else:
     return pulse_duration / 58.2    # Return range in cm 
 
+# Set servos to starting positions
+servo1_position(servo1_angle)
+
 print()
 print("Press PB1 to start!")
 
@@ -95,7 +95,9 @@ while True:
   # add code to read the temperature sensor and convert its value to degrees C
   
   POT1_value = POT1.read_u16()
+  print("POT1 value: {:d}".format(POT1_value))
   servo1_angle = map(POT1_value, 0, 65535, 0, 90)
+  print("Servo1 angle: {:d}".format(servo1_angle))
   servo1_position(servo1_angle)
 
   # Check SONAR for objects within 100cm
